@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Managing Authentication and Configuration in hawkinR v2.0</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Managing Authentication and Configuration
+in hawkinR v2.0</h1>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The 2.0 release of <code>hawkinR</code> introduces a secure,
+profile-based authentication system built on the S7 object-oriented
+framework. By leveraging your computer’s native password manager and
+formal S7 classes, you can now manage multiple team tokens securely
+without ever hardcoding sensitive secrets into your R scripts.</p>
+</div>
+<div id="local-setup-development" class="section level1">
+<h1>1. Local Setup (Development)</h1>
+<p>On your local machine, <code>hawkinR</code> uses your computer’s
+built-in password manager (Keychain on Mac, Credential Manager on
+Windows) to encrypt your keys. You should never have to handle the
+<code>keyring</code> package directly; <code>hawkinR</code> provides
+helper functions to manage this for you.</p>
+<div id="storing-your-credentials" class="section level2">
+<h2>Storing your Credentials</h2>
+<p>You only need to do this once per machine or whenever you receive a
+new token from your Org Admin.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hawkinR)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># This will open a secure popup window asking for your Refresh Token.</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># We recommend naming your primary key &quot;default&quot;.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">hd_auth_store</span>(<span class="at">profile =</span> <span class="st">&quot;default&quot;</span>)</span></code></pre></div>
+</div>
+<div id="connecting" class="section level2">
+<h2>Connecting</h2>
+<p>Once stored, connecting is a single line of code.
+<code>hawkinR</code> retrieves your key, exchanges it for a temporary
+access token, and sets up your “Active Connection” in the
+background.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Connects using the &#39;default&#39; profile </span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">hd_connect</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Fetch data immediately - the connection is handled implicitly</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">get_tests</span>() </span></code></pre></div>
+</div>
+</div>
+<div id="managing-multiple-profiles-teams" class="section level1">
+<h1>2. Managing Multiple Profiles (Teams)</h1>
+<p>If you have “Team Scoped Tokens” for different groups, or if you are
+a consultant managing multiple organizations, you can save them under
+unique profile names.</p>
+<div id="setup-multiple-keys" class="section level3">
+<h3>Setup Multiple Keys</h3>
+<p>Code snippet</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">hd_auth_store</span>(<span class="at">profile =</span> <span class="st">&quot;mens_soccer&quot;</span>) </span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">hd_auth_store</span>(<span class="at">profile =</span> <span class="st">&quot;womens_soccer&quot;</span>) </span></code></pre></div>
+</div>
+<div id="switching-contexts" class="section level3">
+<h3>Switching Contexts</h3>
+<p>To switch which data you are pulling, simply reconnect with the
+desired profile:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Switch to the Men&#39;s team context </span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">hd_connect</span>(<span class="at">profile =</span> <span class="st">&quot;mens_soccer&quot;</span>) </span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>men_data <span class="ot">&lt;-</span> <span class="fu">get_tests</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># Switch to the Women&#39;s team context</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">hd_connect</span>(<span class="at">profile =</span> <span class="st">&quot;womens_soccer&quot;</span>) </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>women_data <span class="ot">&lt;-</span> <span class="fu">get_tests</span>() </span></code></pre></div>
+</div>
+</div>
+<div id="production-cloud-deployment" class="section level1">
+<h1>3. Production &amp; Cloud Deployment</h1>
+<p>When deploying to a server (like ShinyApps.io, Posit Connect, or a
+Docker container), the <code>keyring</code> is typically unavailable. In
+these “headless” environments, <code>hawkinR</code> looks for
+Environment Variables.</p>
+<div id="step-a-configure-the-server" class="section level2">
+<h2>Step A: Configure the Server</h2>
+<p>Add a variable to your server’s environment or your
+<code>.Renviron</code> file formatted as
+<code>HAWKIN_KEY_{PROFILE_NAME}</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Example .Renviron entries </span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="va">HAWKIN_KEY_DEFAULT</span><span class="op">=</span><span class="st">&quot;your_secret_refresh_token_here&quot;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="va">HAWKIN_KEY_MENS_SOCCER</span><span class="op">=</span><span class="st">&quot;another_secret_token_here&quot;</span> </span></code></pre></div>
+</div>
+<div id="step-b-connect-in-production-mode" class="section level2">
+<h2>Step B: Connect in Production Mode</h2>
+<p>Tell <code>hd_connect</code> to bypass the keychain and look for
+environment variables.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># This tells the package to use System Environment Variables </span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">hd_connect</span>(<span class="at">environment =</span> <span class="st">&quot;production&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># The rest of your code remains identical</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">get_tests</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="advanced-explicit-connection-objects" class="section level1">
+<h1>4. Advanced: Explicit Connection Objects</h1>
+<p>While <code>get_tests()</code> usually finds the “Active Connection”
+automatically, power users can manage connection objects manually using
+S7 syntax.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Create specific session objects </span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>conn_a <span class="ot">&lt;-</span> <span class="fu">hd_connect</span>(<span class="at">profile =</span> <span class="st">&quot;org_a&quot;</span>) </span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>conn_b <span class="ot">&lt;-</span> <span class="fu">hd_connect</span>(<span class="at">profile =</span> <span class="st">&quot;org_b&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># Pass the connection as the first argument to any &#39;get&#39; function</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>data_a <span class="ot">&lt;-</span> <span class="fu">get_tests</span>(conn_a, <span class="at">from =</span> <span class="st">&quot;2024-01-01&quot;</span>) </span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>data_b <span class="ot">&lt;-</span> <span class="fu">get_tests</span>(conn_b, <span class="at">from =</span> <span class="st">&quot;2024-01-01&quot;</span>) </span></code></pre></div>
+<p>Summary of Commands</p>
+<table>
+<colgroup>
+<col width="37%" />
+<col width="62%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>hd_auth_store(“name”)</td>
+<td>Saves a key to your computer’s secure vault.</td>
+</tr>
+<tr class="even">
+<td>hd_auth_reset(“name”)</td>
+<td>Deletes a key from your computer’s vault.</td>
+</tr>
+<tr class="odd">
+<td>hd_connect(profile = “name”)</td>
+<td>Initializes the session and sets it as “Active”.</td>
+</tr>
+<tr class="even">
+<td>get_tests(…)</td>
+<td>Fetches data using the current Active connection.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

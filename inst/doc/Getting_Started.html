@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Getting Started With hawkinR</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting Started With hawkinR</h1>
+
+
+
+<div id="initializing-your-session" class="section level2">
+<h2>Initializing Your Session</h2>
+<p>In <strong>hawkinR v2.0</strong>, we use a modernized connection
+system. Our API uses bearer token authentication, but the package now
+manages the exchange of your Integration Key (Refresh Token) for an
+ephemeral Access Token automatically in the background.</p>
+<div id="secure-credential-storage" class="section level3">
+<h3>1. Secure Credential Storage</h3>
+<p>Instead of pasting your secret key into every script, use
+<code>hd_auth_store()</code>. This saves your key securely in your
+operating system’s keychain (like macOS Keychain or Windows Credential
+Manager). You only need to do this once per machine.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hawkinR)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Run this once to save your key securely</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">hd_auth_store</span>(<span class="at">token =</span> <span class="st">&quot;your_integration_key_here&quot;</span>)</span></code></pre></div>
+</div>
+<div id="connecting-to-the-cloud" class="section level3">
+<h3>2. Connecting to the Cloud</h3>
+<p>Use <code>hd_connect()</code> to initialize your session. This
+function performs the initial handshake and sets up your organization
+settings.</p>
+<p><em>Note: The <code>org_id</code> defaults to “v1” for most
+users</em></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Initialize the session using the &#39;default&#39; profile stored above</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">hd_connect</span>(<span class="at">region =</span> <span class="st">&quot;Americas&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; hawkinR -&gt; Successfully authenticated as &#39;default&#39;</span></span></code></pre></div>
+</div>
+</div>
+<div id="making-your-first-calls" class="section level2">
+<h2>Making Your First Calls</h2>
+<p>If this is your first time accessing your data through the API, or
+know you have had changes in your organization since your last session,
+a good place to start is by calling in your organizational data such as
+players, teams, and groups. While this information isn’t required to
+call in your test data, it can allow you to be more specific in your
+queries and save server processing and loading time when calling in test
+data.</p>
+<p>The package was built to allow you the ability to make requests as
+specific as you need, and in as few lines of code as possible. To
+execute this, you will need this organizational information to input the
+parameters needed for that specificity. Each of these calls can be done
+in 1 line of code and one function. Each function returns a data frame
+that can be stored in an R object and used as necessary.</p>
+<p>In this example, I will store athlete information in an object called
+‘roster’, team information in an object called ‘teams’, and group
+information in an object named ‘groups’.</p>
+<div id="exploring-your-organization" class="section level3">
+<h3>Exploring Your Organization</h3>
+<p>Once connected, you can retrieve the structural data of your
+organization. These IDs are often used as filters when pulling
+performance tests.</p>
+<div id="get-athletes" class="section level4">
+<h4>Get Athletes:</h4>
+<p>Returns a data frame with variables of: id, name, active, teams,
+groups, and external. If an athlete has external fields assigned to
+them, the string will contain the external name and external ID
+separated by a colon. And multiple externals will be separated by a
+comma.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># store player info in object called roster. &#39;includeInactive&#39; is default to FALSE. Set to TRUE if you want to include inactive athletes.</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>roster <span class="ot">&lt;-</span> <span class="fu">get_athletes</span>(<span class="at">includeInactive =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="18%" />
+<col width="11%" />
+<col width="6%" />
+<col width="10%" />
+<col width="24%" />
+<col width="28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">id</th>
+<th align="left">name</th>
+<th align="left">active</th>
+<th align="left">teams</th>
+<th align="left">groups</th>
+<th align="left">external</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">0kEjAzSLpBwUZc4Yp2Ov</td>
+<td align="left">Athlete One</td>
+<td align="left">TRUE</td>
+<td align="left">09u20ij0dj0</td>
+<td align="left">0j20j09jd9ud0j</td>
+<td align="left">AMS:dj0203j0dj,GPS:md029j3209j2</td>
+</tr>
+<tr class="even">
+<td align="left">1E1zYBv0CKbrKnsKz1vj</td>
+<td align="left">Player Two</td>
+<td align="left">TRUE</td>
+<td align="left">09u20ij0dj0</td>
+<td align="left">0j20j09jd9ud0j,92d2098d02j0</td>
+<td align="left">AMS:oin208ju09,GPS:od093j32</td>
+</tr>
+<tr class="odd">
+<td align="left">1lXEZKkNuNwvMLXiqFRr</td>
+<td align="left">Person Three</td>
+<td align="left">TRUE</td>
+<td align="left">9308dj209dj</td>
+<td align="left"></td>
+<td align="left">AMS:j029j0jd20j,GPS:0d28j098h3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="get-teams" class="section level4">
+<h4>Get Teams:</h4>
+<p>Returns a data frame with variables: id and name.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># store team info in an object called teams.</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>teams <span class="ot">&lt;-</span> <span class="fu">get_teams</span>()</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">id</th>
+<th align="left">name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">09u20ij0dj0</td>
+<td align="left">Team One</td>
+</tr>
+<tr class="even">
+<td align="left">9308dj209dj</td>
+<td align="left">Team Two</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="get-groups" class="section level4">
+<h4>Get Groups:</h4>
+<p>Returns a data frame with variables: id and name.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># store group info in an object called groups.</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">get_groups</span>()</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">id</th>
+<th align="left">name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">0j20j09jd9ud0j</td>
+<td align="left">Position Group</td>
+</tr>
+<tr class="even">
+<td align="left">92d2098d02j0</td>
+<td align="left">Grad Year Group</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="test-types" class="section level2">
+<h2>Test Types</h2>
+<p>Lastly, there are 9 different test collection modes in our software.
+And thus, we have 9 different test type IDs. These test IDs are what
+will be passed to <code>get_tests()</code> via the <code>typeId</code>
+argument, NOT the test name. So it is a good idea to store the test
+types as an object as well. This also has a single function to execute,
+which returns a data frame with the test type name and ID.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># store test type IDs in an object called testIds</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>testIds <span class="ot">&lt;-</span> <span class="fu">get_testTypes</span>()</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">name</th>
+<th align="left">id</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Countermovement Jump</td>
+<td align="left">7nNduHeM5zETPjHxvm7s</td>
+</tr>
+<tr class="even">
+<td align="left">Squat Jump</td>
+<td align="left">QEG7m7DhYsD6BrcQ8pic</td>
+</tr>
+<tr class="odd">
+<td align="left">Isometric Test</td>
+<td align="left">2uS5XD5kXmWgIZ5HhQ3A</td>
+</tr>
+<tr class="even">
+<td align="left">Drop Jump</td>
+<td align="left">gyBETpRXpdr63Ab2E0V8</td>
+</tr>
+<tr class="odd">
+<td align="left">Free Run</td>
+<td align="left">5pRSUQVSJVnxijpPMck3</td>
+</tr>
+<tr class="even">
+<td align="left">CMJ Rebound</td>
+<td align="left">pqgf2TPUOQOQs6r0HQWb</td>
+</tr>
+<tr class="odd">
+<td align="left">Multi Rebound</td>
+<td align="left">r4fhrkPdYlLxYQxEeM78</td>
+</tr>
+<tr class="even">
+<td align="left">Weigh In</td>
+<td align="left">ubeWMPN1lJFbuQbAM97s</td>
+</tr>
+<tr class="odd">
+<td align="left">Drop Landing</td>
+<td align="left">rKgI4y3ItTAzUekTUpvR</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="pulling-test-data" class="section level2">
+<h2>Pulling Test Data</h2>
+<p>The core of the package is the <code>get_tests()</code> function. In
+v2.0, this single function replaces the multiple
+<code>get_tests_*</code> functions from previous versions. You can
+filter by date, athlete, team, or test type directly in one call.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Example: Pull all CMJ tests from the last 30 days</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>cmj_tests <span class="ot">&lt;-</span> <span class="fu">get_tests</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">from =</span> <span class="st">&quot;2023-10-01&quot;</span>, </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">typeId =</span> <span class="st">&quot;7nNduHeM5zETPjHxvm7s&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>)</span></code></pre></div>
+<p>With these objects, you can access any of the IDs and information you
+would need for your test queries. For a deeper dive into filtering data,
+see the <a href="Get_Tests.html">Get Tests</a> vignette.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

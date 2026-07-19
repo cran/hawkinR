@@ -1,0 +1,151 @@
+---
+title: "Getting Started With hawkinR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started With hawkinR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(knitr)
+```
+
+## Initializing Your Session
+
+In **hawkinR v2.0**, we use a modernized connection system. Our API uses bearer token authentication, but the package now manages the exchange of your Integration Key (Refresh Token) for an ephemeral Access Token automatically in the background.
+
+### 1. Secure Credential Storage
+
+Instead of pasting your secret key into every script, use `hd_auth_store()`. This saves your key securely in your operating system's keychain (like macOS Keychain or Windows Credential Manager). You only need to do this once per machine.
+
+```{r store_credentials, eval=FALSE}
+library(hawkinR)
+
+# Run this once to save your key securely
+hd_auth_store(token = "your_integration_key_here")
+```
+
+### 2. Connecting to the Cloud
+
+Use `hd_connect()` to initialize your session. This function performs the initial handshake and sets up your organization settings.
+
+*Note: The `org_id` defaults to "v1" for most users*
+
+```{r initialize, eval=FALSE, message=FALSE, echo=TRUE}
+# Initialize the session using the 'default' profile stored above
+hd_connect(region = "Americas")
+
+#> hawkinR -> Successfully authenticated as 'default'
+```
+
+## Making Your First Calls
+
+If this is your first time accessing your data through the API, or know you have had changes in your organization since your last session, a good place to start is by calling in your organizational data such as players, teams, and groups. While this information isn't required to call in your test data, it can allow you to be more specific in your queries and save server processing and loading time when calling in test data.
+
+The package was built to allow you the ability to make requests as specific as you need, and in as few lines of code as possible. To execute this, you will need this organizational information to input the parameters needed for that specificity. Each of these calls can be done in 1 line of code and one function. Each function returns a data frame that can be stored in an R object and used as necessary.
+
+In this example, I will store athlete information in an object called 'roster', team information in an object called 'teams', and group information in an object named 'groups'.
+
+### Exploring Your Organization
+
+Once connected, you can retrieve the structural data of your organization. These IDs are often used as filters when pulling performance tests.
+
+#### Get Athletes:
+
+Returns a data frame with variables of: id, name, active, teams, groups, and external. If an athlete has external fields assigned to them, the string will contain the external name and external ID separated by a colon. And multiple externals will be separated by a comma.
+
+```{r roster, eval=FALSE}
+# store player info in object called roster. 'includeInactive' is default to FALSE. Set to TRUE if you want to include inactive athletes.
+roster <- get_athletes(includeInactive = FALSE)
+```
+
+```{r rosterResp, echo=FALSE}
+roster <- data.frame(
+  "id" = c("0kEjAzSLpBwUZc4Yp2Ov", "1E1zYBv0CKbrKnsKz1vj", "1lXEZKkNuNwvMLXiqFRr"),
+  "name" = c("Athlete One", "Player Two", "Person Three"),
+  "active" = c(TRUE, TRUE, TRUE),
+  "teams" = c("09u20ij0dj0", "09u20ij0dj0", "9308dj209dj"),
+  "groups" = c("0j20j09jd9ud0j", "0j20j09jd9ud0j,92d2098d02j0", ""),
+  "external" = c("AMS:dj0203j0dj,GPS:md029j3209j2","AMS:oin208ju09,GPS:od093j32", "AMS:j029j0jd20j,GPS:0d28j098h3")
+)
+
+kable(roster)
+```
+
+#### Get Teams:
+
+Returns a data frame with variables: id and name.
+
+```{r teams, eval=FALSE}
+# store team info in an object called teams.
+teams <- get_teams()
+```
+
+```{r teamsResp, echo=FALSE}
+teams <- data.frame(
+  "id" = c("09u20ij0dj0", "9308dj209dj"),
+  "name" = c("Team One", "Team Two")
+)
+
+kable(teams)
+```
+
+#### Get Groups:
+
+Returns a data frame with variables: id and name.
+
+```{r groups, eval=FALSE}
+# store group info in an object called groups.
+groups <- get_groups()
+```
+
+```{r groupsResp, echo=FALSE}
+groups <- data.frame(
+  "id" = c("0j20j09jd9ud0j", "92d2098d02j0"),
+  "name" = c("Position Group", "Grad Year Group")
+)
+
+kable(groups)
+```
+
+## Test Types
+
+Lastly, there are 9 different test collection modes in our software. And thus, we have 9 different test type IDs. These test IDs are what will be passed to `get_tests()` via the `typeId` argument, NOT the test name. So it is a good idea to store the test types as an object as well. This also has a single function to execute, which returns a data frame with the test type name and ID.
+
+```{r types, eval=FALSE}
+# store test type IDs in an object called testIds
+testIds <- get_testTypes()
+```
+
+```{r typesResp, echo=FALSE}
+tests <- data.frame(
+  "name" = c("Countermovement Jump","	
+Squat Jump","	
+Isometric Test", "Drop Jump", "Free Run", "CMJ Rebound", "Multi Rebound", "Weigh In", "Drop Landing"),
+"id" = c("7nNduHeM5zETPjHxvm7s","QEG7m7DhYsD6BrcQ8pic", "2uS5XD5kXmWgIZ5HhQ3A", "gyBETpRXpdr63Ab2E0V8", "5pRSUQVSJVnxijpPMck3", "pqgf2TPUOQOQs6r0HQWb", "r4fhrkPdYlLxYQxEeM78", "ubeWMPN1lJFbuQbAM97s", "rKgI4y3ItTAzUekTUpvR")
+)
+
+kable(tests)
+
+```
+
+------------------------------------------------------------------------
+
+## Pulling Test Data
+
+The core of the package is the `get_tests()` function. In v2.0, this single function replaces the multiple `get_tests_*` functions from previous versions. You can filter by date, athlete, team, or test type directly in one call.
+
+```{r getTests, eval=FALSE}
+# Example: Pull all CMJ tests from the last 30 days
+cmj_tests <- get_tests(
+  from = "2023-10-01", 
+  typeId = "7nNduHeM5zETPjHxvm7s"
+)
+```
+
+With these objects, you can access any of the IDs and information you would need for your test queries. For a deeper dive into filtering data, see the [Get Tests](Get_Tests.html) vignette.

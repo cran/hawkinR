@@ -1,0 +1,130 @@
+---
+title: "How to Get Tests"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to Get Tests}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(knitr)
+```
+
+> As of January 01, 2026, the use of \`get_tests\_...\` functions have been superseded in favor of the expanded usage of \`get_tests\`. The base \`get_tests\` function has been expanded to accept all arguments from the other \`get_tests\_...\` variations.
+
+The get_tests() function is the primary tool for querying performance data from the Hawkin Dynamics Cloud. In v2.0, this single function replaces all previous variations, providing a unified way to filter by date, athlete, team, group, or test type.
+
+## 1. Basic Usage
+
+The simplest way to use `get_tests()` is to provide a date range. You can use standard date strings (`"YYYY-MM-DD"`) or Unix timestamps.
+
+```{r alltests, eval=FALSE}
+library(hawkinR)
+hd_connect()
+
+# Call all tests
+all_tests <- get_tests()
+
+# Pull all tests from the start of 2023 to present
+tests <- get_tests(from = "2023-01-01")
+```
+
+## 2. Advanced Filtering
+
+You can combine multiple filters to narrow down your dataset. When multiple filters are provided, the API returns trials that meet **all** criteria.
+
+### Filter by Test Type
+
+To isolate specific movements (e.g., Countermovement Jumps), use the `typeId`.
+
+```{r testTypes, eval=FALSE}
+# Pull only CMJ tests
+cmj_data <- get_tests(typeId = "7nNduHeM5zETPjHxvm7s")
+
+# Test type argument also excepts type name or abbreviation
+
+# Squat Jump
+sj_data <- get_tests(typeId = "SJ")
+
+# Iso tests
+iso_data <- get_tests(typeId = "Isometric Test")
+
+```
+
+### Filter by Athletes, Teams, or Groups
+
+First, it is important to remember a few specifics of the HD athlete data structure. All unique entities have unique IDs. This includes athletes, tests types, teams, and groups. Each athlete MUST be a part of a team, but MAY optionally be in a group. Also, athletes can be a part of multiple teams and multiple groups. To see which teams and/or groups an athlete is a part of, you can find this in the data frame returned from `get_athletes`. For more information on this, you can go to the [Getting Started](Getting_Started.html) page for specifics.
+
+```{r roster, eval=FALSE}
+# Store player info in object called roster. 
+# 'inactive' is default to FALSE. Set to TRUE if you want to include inactive athletes.
+roster <- get_athletes(inactive = FALSE)
+```
+
+```{r rosterResp, echo=FALSE}
+roster <- data.frame(
+  "id" = c("0kEjAzSLpBwUZc4Yp2Ov", "1E1zYBv0CKbrKnsKz1vj", "1lXEZKkNuNwvMLXiqFRr"),
+  "name" = c("Athlete One", "Player Two", "Person Three"),
+  "active" = c(TRUE, TRUE, TRUE),
+  "teams" = c("09u20ij0dj0", "09u20ij0dj0", "9308dj209dj"),
+  "groups" = c("0j20j09jd9ud0j", "0j20j09jd9ud0j,92d2098d02j0", ""),
+  "external" = c("AMS:dj0203j0dj,GPS:md029j3209j2","AMS:oin208ju09,GPS:od093j32", "AMS:j029j0jd20j,GPS:0d28j098h3")
+)
+
+kable(roster)
+```
+
+You can filter for a specific athlete, or an entire cohort using `teamId` or `groupId`. In v2.0, these fields accept either a single ID string or a vector of IDs.
+
+```{r specificTestCalls, eval=FALSE}
+
+# Tests By Athlete
+athelte <- roster$id[roster$name == "Some Athlete"]
+ath_tests <-  get_tests(athleteId = athlete)
+
+# Pull Tests by team
+team_ids <- c("team_id_1", "team_id_2")
+cohort_data <- get_tests(teamId = team_ids)
+```
+
+> It is important to note that test can only be filtered by a singular parameter and a time frame. This means you CAN NOT combine arguments for teams and groups or athlete. Queries can only be made with from, to, and teams OR groups OR athlete.
+
+## 3. The "Sync" Parameter
+
+For developers building local databases, the `sync` parameter allows you to pull data based on when it was **uploaded/modified** rather than when the test occurred. This is essential for Incremental Refresh logic.
+
+```{r syncParams, eval=FALSE}
+# Pull everything synced to the cloud in the last 24 hours
+last_24h <- as.numeric(Sys.time()) - 86400
+new_data <- get_tests(from = last_24h, sync = TRUE)
+```
+
+## 4. Data Structure
+
+The returned data frame is automatically processed using internal prep functions (`AthletePrep` and `TestTypePrep`). The columns are organized into four logical sections:
+
+1.  **Trial Info:** Basic trial metadata (ID, timestamp, etc.)
+
+2.  **Test Type Info:** Details about the movement performed.
+
+3.  **Athlete Info:** Details about the athlete who performed the test.
+
+4.  **Metrics:** All performance metrics (Force, Velocity, Power, etc.) with clean names.
+
+## 5. Handling Inactive Data
+
+By default, `get_tests()` only returns trials marked as "Active." If you need to include deleted or hidden trials for auditing purposes, set `includeInactive = TRUE`.
+
+```{r inactiveData, eval=FALSE}
+# Include inactive/deleted tests in the response
+all_history <- get_tests(from = "2023-01-01", includeInactive = TRUE)
+```
+
+------------------------------------------------------------------------
+
+All of the test trials have there own unique ID. This `testId` is what is used in the `get_forcetime` function to call in the raw data from that trial. See [Accessing Force-Time Data of A Test](Get_ForceTime_Data.html) for more information.

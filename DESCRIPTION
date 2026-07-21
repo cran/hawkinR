@@ -1,6 +1,6 @@
 Package: hawkinR
 Title: Interface to the 'Hawkin Dynamics' Force Platform API
-Version: 2.0.0
+Version: 2.0.1
 Authors@R: 
     person("Lauren", "Green", , "lauren@hawkindynamics.com", role = c("aut", "cre"))
 Description: Provides a secure and configurable interface to the 'Hawkin Dynamics' API for accessing athlete performance data, tests, and metadata.
@@ -30,8 +30,8 @@ Collate: 'MetricDictionary.R' 'utils.R' 'auth_system.R'
         'get_testTypes.R' 'logController.R' 'update_athletes.R'
         'utils-pipe.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2026-07-11 00:36:23 UTC; LaurenGreen
+Packaged: 2026-07-21 06:27:25 UTC; LaurenGreen
 Author: Lauren Green [aut, cre]
 Maintainer: Lauren Green <lauren@hawkindynamics.com>
 Repository: CRAN
-Date/Publication: 2026-07-19 13:20:02 UTC
+Date/Publication: 2026-07-21 07:20:07 UTC

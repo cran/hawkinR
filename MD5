@@ -1,13 +1,13 @@
-a16f9932aae4ed9a2c5d29cd6500f60e *DESCRIPTION
+24819b3c20a2abd1abaa355dc8903239 *DESCRIPTION
 a9b1803a171e07b9a79876de0814ca2e *LICENSE
 29fb41988b7725161bd5fc1fd151a8f2 *NAMESPACE
-f11268822dde0b3ea2ac6e056c0ccfda *NEWS.md
+8346c67bc74034a521f730fc3092b685 *NEWS.md
 5d01c9c945bdc1be31d023e24c70afc5 *R/MetricDictionary.R
 221eda5e6d13aa9a5d00f44d2d967b8b *R/auth_system.R
 e6045d367566d89691a27d3a3fec5c94 *R/create_athletes.R
 10ef6a77f536e55a6b62bf1f5c1f1b6d *R/get_athletes.R
 0c1853ca2ae6fb7101a02163456bc0fb *R/get_cop.R
-a0d01933c1ef10c8f7991e9cac6041c8 *R/get_forcetime.R
+3009eb66ccbb236edb02ce15a951e7b0 *R/get_forcetime.R
 0f81fdba92c0e696c582384aa3077492 *R/get_forcetime_bulk.R
 8afcc66183e91da923674e9f7f3568ff *R/get_groups.R
 6a284303b5e4810b14c4eda8eb883ef0 *R/get_metrics.R
@@ -21,7 +21,7 @@ bff78fac50b5a2fb04c0fce72337362a *R/sysdata.rda
 b56ff2b193ecba52f9ec7f3b10cca008 *R/utils-pipe.R
 ab3405790e787ce500295cd69ec15348 *R/utils.R
 9fa51963f9fcb891417e085d4ea9d99d *R/zzz.R
-4ca5f88ceb78e2d94b7a46bc4d32e051 *README.md
+235cb048e82565d9d15dd0475a339190 *README.md
 859c2c54e97385b7ee6cec9f6b3d001d *build/vignette.rds
 43da38b784d70240e630b4b960b9c31c *data/MetricDictionary.rda
 364b1255389efb042e8f2255fcd047c7 *inst/WORDLIST
@@ -71,6 +71,7 @@ b04538cd6a9a9af6ab5267b33473e899 *man/update_athletes.Rd
 6c1b4f877af65952de4cb7c685bcef56 *tests/testthat/test-auth_connection.R
 782e670bfc19c2f97d99d2a584e83295 *tests/testthat/test-cop_class.R
 b7c6e70a202a58686bccd0339717cbc2 *tests/testthat/test-forcetime_class.R
+d25fb58c1516a12aa0be5c2f8d623347 *tests/testthat/test-get_forcetime.R
 5feb8ff4431a7882f50fb00595bf8ac2 *tests/testthat/test-get_tests.R
 a69c9d0b8a1011cc06e2fa66d5be93dc *tests/testthat/test-utils.R
 1eb64af4feac8477ea43ec4a475199ca *vignettes/Get_ForceTime_Data.Rmd

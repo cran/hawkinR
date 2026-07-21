@@ -1,5 +1,12 @@
 # Change Log
 
+## hawkinR v2.0.1
+
+### Bug Fixes
+* **CRITICAL:** `get_forcetime()` built its data frame by indexing the API response positionally rather than by field name. When the response elements did not line up with the assumed positions, the force-time series were populated from the wrong fields, leaving column values misaligned relative to their labels (for example, a force series appearing under the `time_s` column). Because the shape and length of the data were unaffected, the result looked valid and no error was raised, so downstream analysis could be silently incorrect. Columns are now selected by their API field names (`Time(s)`, `LeftForce(N)`, `RightForce(N)`, ...), so each series is populated from the correct vector regardless of field order or omitted optional fields. The tri-axial force and moment columns are handled the same way.
+* `get_forcetime()` now reads `testType_id` from the named `testType$id` field instead of a positional lookup.
+* Added regression tests covering the force-time column mapping (each column populated from its own field, tri-axial fields present and absent, and `testType_id`), which previously had no test coverage.
+
 ## hawkinR v2.0.0
 
 ### Breaking Changes

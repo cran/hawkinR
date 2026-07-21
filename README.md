@@ -8,7 +8,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/HawkinDynamics/hawkinR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/HawkinDynamics/hawkinR/actions/workflows/R-CMD-check.yaml)
-[![Last-changedate](https://img.shields.io/badge/last%20change-%60r%20gsub('-',%20'--',%20Sys.Date())%60-yellowgreen.svg)](https://github.com/HawkinDynamics/hawkinR/commits/main)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2026--07--20-yellowgreen.svg)](https://github.com/HawkinDynamics/hawkinR/commits/main)
 [![license](https://img.shields.io/badge/license-MIT%20+%20file%20LICENSE-lightgrey.svg)](https://choosealicense.com/)
 [![minimal R
 version](https://img.shields.io/badge/R%3E%3D-4.1.0-6666ff.svg)](https://cran.r-project.org/)
@@ -16,7 +16,7 @@ version](https://img.shields.io/badge/R%3E%3D-4.1.0-6666ff.svg)](https://cran.r-
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![packageversion](https://img.shields.io/badge/Package%20version-2.0.0-orange.svg?style=flat-square)](https://github.com/HawkinDynamics/hawkinR/commits/main)
+[![packageversion](https://img.shields.io/badge/Package%20version-2.0.1-orange.svg?style=flat-square)](https://github.com/HawkinDynamics/hawkinR/commits/main)
 
 <!-- badges: end -->
 

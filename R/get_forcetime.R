@@ -128,10 +128,7 @@ get_forcetime <- function(testId, ...) {
 
     # 8. ----- Extract Metadata -----
     logger::log_trace("hawkinR/get_forcetime -> Extracting test metadata")
-    # Indices based on known API response structure:
-    # [[1]]: Test Type Info
-    # [[3]]: Athlete Info
-    # [[4]]: Timestamp
+    # Metadata is read by name, not position -- see the note on data_map below.
 
     meta_test    <- x$testType
     meta_athlete <- x$athlete
@@ -148,24 +145,29 @@ get_forcetime <- function(testId, ...) {
     # 9. ----- Build Force-Time Series -----
     logger::log_trace("hawkinR/get_forcetime -> Building force-time data frame")
 
-    # Map API list index -> Column Name
+    # Map API response key -> Column Name.
+    #
+    # Indexed by NAME, never by position. The response omits optional fields
+    # (tri-axial data is absent on non-plate tests, `rsi` may be "NA"), so a
+    # positional lookup silently shifts every subsequent vector onto the wrong
+    # label -- which is how `right_force_N` came to hold left-plate data.
     data_map <- list(
-      "5"  = "time_s",
-      "6"  = "right_force_N",
-      "7"  = "left_force_N",
-      "8"  = "combined_force_N",
-      "9"  = "velocity_m_s",
-      "10" = "displacement_m",
-      "11" = "power_W",
-      # Tri-axial / Plate specific data
-      "12" = "x_left_force_N",
-      "13" = "x_right_force_N",
-      "14" = "y_left_force_N",
-      "15" = "y_right_force_N",
-      "16" = "x_left_moments",
-      "17" = "x_right_moments",
-      "18" = "y_left_moments",
-      "19" = "y_right_moments"
+      "Time(s)"           = "time_s",
+      "LeftForce(N)"      = "left_force_N",
+      "RightForce(N)"     = "right_force_N",
+      "CombinedForce(N)"  = "combined_force_N",
+      "Velocity(m/s)"     = "velocity_m_s",
+      "Displacement(m)"   = "displacement_m",
+      "Power(W)"          = "power_W",
+      # Tri-axial / plate specific data (present only on some test types)
+      "XLeftForce(N)"     = "x_left_force_N",
+      "XRightForce(N)"    = "x_right_force_N",
+      "YLeftForce(N)"     = "y_left_force_N",
+      "YRightForce(N)"    = "y_right_force_N",
+      "XLeftMoments(Nm)"  = "x_left_moments",
+      "XRightMoments(Nm)" = "x_right_moments",
+      "YLeftMoments(Nm)"  = "y_left_moments",
+      "YRightMoments(Nm)" = "y_right_moments"
     )
 
     # Initialize a list to collect valid columns
@@ -174,17 +176,13 @@ get_forcetime <- function(testId, ...) {
     # Extract and validate sensor data
     logger::log_trace("hawkinR/get_forcetime -> Building force-time data frame")
 
-    for (idx_char in names(data_map)) {
-      idx <- as.integer(idx_char)
-      col_name <- data_map[[idx_char]]
+    for (api_key in names(data_map)) {
+      col_name <- data_map[[api_key]]
+      vec <- x[[api_key]]
 
-      # Check if index exists and contains data
-      if (idx <= length(x)) {
-        vec <- x[[idx]]
-        # Verify it's a valid numeric vector with length > 0
-        if (!is.null(vec) && length(vec) > 0 && is.numeric(vec)) {
-          collected_cols[[col_name]] <- vec
-        }
+      # Verify it's a valid numeric vector with length > 0
+      if (!is.null(vec) && length(vec) > 0 && is.numeric(vec)) {
+        collected_cols[[col_name]] <- vec
       }
     }
 
@@ -236,7 +234,7 @@ get_forcetime <- function(testId, ...) {
       test_sampling_rate    = as.integer(sampling_rate),
       timestamp             = as.integer(timestamp),
       test_date             = date_obj,
-      testType_id           = as.character(meta_test[[3]]),
+      testType_id           = as.character(meta_test$id),
       testType_name         = as.character(testName),
       testType_canonical   = as.character(testCanonical),
       testType_tags         = tags_obj,

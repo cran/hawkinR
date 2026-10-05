@@ -1,5 +1,37 @@
 # Change Log
 
+## hawkinR v2.2.0
+
+### Breaking Changes
+* Because `update_athletes()` replaces external properties, updating with a `position`, `sport`, `dob` or `height` column now removes any external property of that name from the athlete. If an athlete still has one, `get_athletes()` returns it as a suffixed column such as `position.1`; that column is not sent, and a warning says so. Copy any value you want to keep into the native column first.
+
+### New Features
+* `create_athletes()` and `update_athletes()` now write the athlete profile fields `position`, `sport`, `dob` and `height` as native API fields. Previously a column with one of these names was sent as an external (custom) property of the same name.
+  * `dob` accepts `"YYYY-MM-DD"`, a 4-digit year (`"1998"` or `1998`), a `Date`, or a `POSIXct`. Date-times are sent as the calendar date in their own time zone, never shifted to UTC.
+  * `height` is in centimeters and is rounded to 1 decimal place. A warning is raised when a height below 100 is sent, because the API reads those values back as legacy feet or inches (95 reads back as 241.3).
+  * An `NA` or blank value is not sent. On update the field is left unchanged; the API cannot clear these fields, so clear them in the Hawkin app.
+* The output of `get_athletes()` can be passed back to `update_athletes()` (or `create_athletes()`) without adding junk external properties. `lastTestedOn` is read-only and is never sent, and `create_athletes()` no longer sends an `id` column as an external property.
+
+### Bug Fixes
+* **CRITICAL:** `update_athletes()` always sent an `external` field, empty (`[]`) when the data frame had no custom-property columns. The API replaces external properties on update, so an update that only changed, say, `name` or `active` could delete every custom property on those athletes. `external` is now only sent for an athlete with at least one non-`NA`, non-blank custom value, and always as a JSON object. With no custom columns, or with every custom cell `NA` or blank, the athlete's custom properties are left unchanged. `create_athletes()` follows the same rule.
+* `create_athletes()` and `update_athletes()` sent a `teams` or `groups` list column nested one level too deep (`[["t2","t3"]]`), and sent a comma-separated string such as `"t2,t3"` as one ID. Both are now sent as a flat array of IDs: a list column element is flattened, and a string is split on `,` and trimmed, as the Sheets and Excel add-ins do. A single ID is still sent as an array. `NA`, `NULL` or blank values are not sent (on update, the athlete's teams or groups are left unchanged); previously a `NULL` list element was sent as `[{}]`.
+* `NA` and blank custom-property values are no longer sent as external properties. A list-valued custom-property column now sends one string per athlete (several values joined with `, `) and skips `NULL` or empty elements, which were previously sent as `[{}]` or `[[]]` and replaced the athlete's real custom properties on update.
+
+## hawkinR v2.1.0
+
+*Tagged in the monorepo on 2026-09-30 but not submitted to CRAN; these changes reach CRAN in 2.2.0.*
+
+### New Features
+* `get_tests()` gains three optional arguments that map to the Hawkin API v1.16 response-shape query params: `useNulls` (default `TRUE`), `rounding` (default `FALSE`) and `nestMetrics` (default `FALSE`). Only a non-default value is sent, so existing calls produce identical requests. They exist so customers migrating from a legacy named API endpoint to `/api/v1` can reproduce that endpoint's payload; new integrations should leave the defaults.
+  * `useNulls = FALSE` keeps the string `"N/A"` for non-calculable metrics instead of `NA` (affected metric columns become character).
+  * `rounding = TRUE` returns each metric rounded to its standard display precision. Inert when `nestMetrics = TRUE`.
+  * `nestMetrics = TRUE` returns a long table — one row per test and metric with `metric_id`, `metric_label`, `metric_units` and `metric_value` columns beside the trial, athlete and test-type columns. A test with no numeric metrics keeps a single row with `NA` metric fields.
+* Tests cover query-param emission and both response shapes.
+
+### Bug Fixes
+* **CRITICAL:** `get_tests()` could silently return incomplete data. If any page after the first failed (a non-200 status such as 401, 429 or 500, a network error, or a pagination cursor that did not advance), the function logged a warning, stopped paginating and returned only the pages fetched so far. The result looked like a valid, complete data frame. `get_tests()` now stops with an error naming the status and page, and no partial result is returned. A 200 response whose body can't be parsed is also reported with the failing page. Transient failures (HTTP 429, 502, 503, 504) are retried up to three times with backoff before the error is raised.
+* Added regression tests for each failure path: a non-200 status on a later page, a failed request, a cursor that does not advance, and retry configuration.
+
 ## hawkinR v2.0.1
 
 ### Bug Fixes
